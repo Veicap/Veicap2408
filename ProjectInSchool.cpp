@@ -20,9 +20,9 @@ struct Group {
 struct Project {
     int projectNumber;
     std::string shortDescriptionOfProject;
-    int dayOfDeadLine;
-    int monthOfDeadLine;
-    int yearOfDeadLine;
+    std::string dayOfDeadLine;
+    std::string monthOfDeadLine;
+    std::string yearOfDeadLine;
     std::string deadline;
 };
 struct HandleData {
@@ -193,24 +193,32 @@ struct HandleData {
     }
 
     //Option 2
+    void TransformDateMonth(std::string &dateIndex) {
+        if (dateIndex.length() <= 1) {
+            dateIndex = '0' + dateIndex;
+        }
+    }
     std::vector<Project*> projects;
     void InputProjectInformation() {
         int dayIndex, monthIndex, yearIndex;
+        std::string day, month, year;
         if (projects.empty()) {
             Project* project = new Project();
             int numberOfProject;
             std::cout << "Enter number of project: "; std::cin >> numberOfProject;
             for (int i = 1; i <= numberOfProject; i++) {
                 std::cin.ignore();
-                std::cout << "(*) Enter information of Project " << i << "\n";
+                std::cout << "(*) Enter information of project " << i << "\n";
                 project->projectNumber = i;
                 std::cout << "(+) Enter a short description about project: ";
                 std::getline(std::cin, project->shortDescriptionOfProject);
-                std::cout << "(-) Enter a submission deadline of project\n";
-                std::cout << "(+) Enter day of deadLine: "; std::cin >> dayIndex; project->dayOfDeadLine = dayIndex;
-                std::cout << "(+) Enter month of deadLine: "; std::cin >> monthIndex; project->monthOfDeadLine = monthIndex;
-                std::cout << "(+) Enter year of deadLine: "; std::cin >> yearIndex; project->yearOfDeadLine = yearIndex;
-                project->deadline = std::to_string(yearIndex) + std::to_string(monthIndex) + std::to_string(dayIndex);
+                std::cout << "(-) Enter a submission deadline of project(day month year): ";
+                std::cin >> dayIndex; std::cin >> monthIndex; std::cin >> yearIndex;
+                day = std::to_string(dayIndex); month = std::to_string(monthIndex); year = std::to_string(yearIndex);
+                TransformDateMonth(day); project->dayOfDeadLine = day;
+                TransformDateMonth(month); project->monthOfDeadLine = month;
+                project->yearOfDeadLine = year;
+                project->deadline = year +(month)+ (day);
                 addProject(project);
                 project = new Project();
             }
@@ -225,8 +233,8 @@ struct HandleData {
         std::cout << "Project Information:\n";
         for (const auto project : projects) {
             std::cout << "Project: " << project->projectNumber << "\n";
-            std::cout << "Description of project: " << project->shortDescriptionOfProject << "\n";
-            std::cout << "Submission Deadline of project: " << project->dayOfDeadLine << "/" << project->monthOfDeadLine << "/" << project->yearOfDeadLine << "\n";
+            std::cout << "Description: " << project->shortDescriptionOfProject << "\n";
+            std::cout << "Submission Deadline: " << project->dayOfDeadLine << "/" << project->monthOfDeadLine << "/" << project->yearOfDeadLine << "\n";
         }
     }
     void addProject(Project* project) {
@@ -235,7 +243,7 @@ struct HandleData {
     //Option 3
     void SubmitProject() {
         int groupIndex, projectIndex, dayIndex, monthIndex, yearIndex;
-      
+        std::string day, month, year;
         std::cout << "Enter group number for project submission: ";
         std::cin >> groupIndex;
 
@@ -255,7 +263,9 @@ struct HandleData {
         std::cin >> dayIndex; 
         std::cin >> monthIndex;
         std::cin >> yearIndex;
-
+        day = std::to_string(dayIndex); month = std::to_string(monthIndex); year = std::to_string(yearIndex);
+        TransformDateMonth(day);
+        TransformDateMonth(month); 
         ProjectSubmission* submission = nullptr;
 
         
@@ -271,7 +281,7 @@ struct HandleData {
             submission->projectNumber = projectIndex;
             listOfGroup[groupIndex - 1]->submissions.push_back(submission);
         }
-        submission->submissionDate = std::to_string(yearIndex) + std::to_string(monthIndex) + std::to_string(dayIndex);
+        submission->submissionDate = year + month + day;
 
         std::cout << "Project submitted successfully!\n";
     }
@@ -347,6 +357,7 @@ struct HandleData {
             }
         }
         else if (optionOf4 == "2") {
+            
             int group_Number;
             std::cout << "Enter group number: ";
             std::cin >> group_Number;
@@ -369,7 +380,7 @@ struct HandleData {
                     }
                 }
             }
-
+            std::cin.ignore();
         }
 
     }
@@ -437,7 +448,7 @@ int main()
         }
         else if (option == "4") {
             handleData->displaySubmissionStatus();
-            std::cin.ignore();
+            
         }
         std::cout << "(*)Press enter to back to menu...";
         //std::cin.ignore();
